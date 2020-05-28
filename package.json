@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Measure the speed and consistency of your internet connection using speed.cloudflare.com",
   "main": "cli.js",
+  "bin": {
+    "speed-cloudflare-cli": "./cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
