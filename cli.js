@@ -182,22 +182,37 @@ async function speedTest() {
     `${stats.median(test4).toFixed(2)} Mbps`
   );
 
+  const test5 = await measureDownload(25001000, 5);
+
+  console.log(
+    '\x1b[1m%s\x1b[33m%s\x1b[0m',
+    '    25MB speed: ',
+    `${stats.median(test5).toFixed(2)} Mbps`
+  );
+  const test6 = await measureDownload(100001000, 5);
+
+  console.log(
+    '\x1b[1m%s\x1b[33m%s\x1b[0m',
+    '    100MB speed: ',
+    `${stats.median(test6).toFixed(2)} Mbps`
+  );
+
   console.log(
     '\x1b[1m%s\x1b[32m%s\x1b[0m',
     'Download speed: ',
     `${stats
-      .quartile([...test1, ...test2, ...test3, ...test4], 0.9)
+      .quartile([...test1, ...test2, ...test3, ...test4, ...test5, ...test6], 0.9)
       .toFixed(2)} Mbps`
   );
 
-  const test5 = await measureUpload(11000, 10);
-  const test6 = await measureUpload(101000, 10);
-  const test7 = await measureUpload(1001000, 8);
+  const test7 = await measureUpload(11000, 10);
+  const test8 = await measureUpload(101000, 10);
+  const test9 = await measureUpload(1001000, 8);
 
   console.log(
     '\x1b[1m%s\x1b[32m%s\x1b[0m',
     '  Upload speed: ',
-    `${stats.quartile([...test5, ...test6, ...test7], 0.9).toFixed(2)} Mbps`
+    `${stats.quartile([...test7, ...test8, ...test9], 0.9).toFixed(2)} Mbps`
   );
 }
 
