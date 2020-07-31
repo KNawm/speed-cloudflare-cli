@@ -1,6 +1,6 @@
 {
   "name": "speed-cloudflare-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Measure the speed and consistency of your internet connection using speed.cloudflare.com",
   "main": "cli.js",
   "bin": {
