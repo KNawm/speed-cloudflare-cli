@@ -193,7 +193,7 @@ async function speedTest() {
 
   console.log(
     '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '    100MB speed: ',
+    '   100MB speed: ',
     `${stats.median(test6).toFixed(2)} Mbps`
   );
 
@@ -201,7 +201,10 @@ async function speedTest() {
     '\x1b[1m%s\x1b[32m%s\x1b[0m',
     'Download speed: ',
     `${stats
-      .quartile([...test1, ...test2, ...test3, ...test4, ...test5, ...test6], 0.9)
+      .quartile(
+        [...test1, ...test2, ...test3, ...test4, ...test5, ...test6],
+        0.9
+      )
       .toFixed(2)} Mbps`
   );
 
