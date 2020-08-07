@@ -2,6 +2,7 @@
 
 const { performance } = require('perf_hooks');
 const https = require('https');
+const { magenta, bold, yellow, green } = require('./chalk.js');
 const stats = require('./stats.js');
 
 function request(options, data = '') {
@@ -141,71 +142,55 @@ async function measureUpload(bytes, iterations) {
   return measurements;
 }
 
+function logSpeedTestResult(size, test) {
+  const speed = stats.median(test).toFixed(2);
+  console.log(
+    bold(' '.repeat(7 - size.length), size, 'speed:', yellow(`${speed} Mbps`))
+  );
+}
+
 async function speedTest() {
   const ping = await measureLatency();
 
-  console.log(
-    '\x1b[35m%s%s\x1b[0m',
-    '       Latency: ',
-    `${ping[3].toFixed(2)} ms`
-  );
+  console.log(bold('       Latency:', magenta(`${ping[3].toFixed(2)} ms`)));
 
   const test1 = await measureDownload(11000, 10);
 
-  console.log(
-    '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '    10kB speed: ',
-    `${stats.median(test1).toFixed(2)} Mbps`
-  );
+  logSpeedTestResult('10kB', test1);
 
   const test2 = await measureDownload(101000, 10);
 
-  console.log(
-    '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '   100kB speed: ',
-    `${stats.median(test2).toFixed(2)} Mbps`
-  );
+  logSpeedTestResult('100kB', test2);
 
   const test3 = await measureDownload(1001000, 8);
 
-  console.log(
-    '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '     1MB speed: ',
-    `${stats.median(test3).toFixed(2)} Mbps`
-  );
+  logSpeedTestResult('1MB', test3);
 
   const test4 = await measureDownload(10001000, 5);
 
-  console.log(
-    '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '    10MB speed: ',
-    `${stats.median(test4).toFixed(2)} Mbps`
-  );
+  logSpeedTestResult('10MB', test4);
 
   const test5 = await measureDownload(25001000, 5);
 
-  console.log(
-    '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '    25MB speed: ',
-    `${stats.median(test5).toFixed(2)} Mbps`
-  );
+  logSpeedTestResult('25MB', test5);
+
   const test6 = await measureDownload(100001000, 5);
 
-  console.log(
-    '\x1b[1m%s\x1b[33m%s\x1b[0m',
-    '   100MB speed: ',
-    `${stats.median(test6).toFixed(2)} Mbps`
-  );
+  logSpeedTestResult('100MB', test6);
 
   console.log(
-    '\x1b[1m%s\x1b[32m%s\x1b[0m',
-    'Download speed: ',
-    `${stats
-      .quartile(
-        [...test1, ...test2, ...test3, ...test4, ...test5, ...test6],
-        0.9
+    bold(
+      'Download speed:',
+      green(
+        stats
+          .quartile(
+            [...test1, ...test2, ...test3, ...test4, ...test5, ...test6],
+            0.9
+          )
+          .toFixed(2),
+        'Mbps'
       )
-      .toFixed(2)} Mbps`
+    )
   );
 
   const test7 = await measureUpload(11000, 10);
@@ -213,9 +198,13 @@ async function speedTest() {
   const test9 = await measureUpload(1001000, 8);
 
   console.log(
-    '\x1b[1m%s\x1b[32m%s\x1b[0m',
-    '  Upload speed: ',
-    `${stats.quartile([...test7, ...test8, ...test9], 0.9).toFixed(2)} Mbps`
+    bold(
+      '  Upload speed:',
+      green(
+        stats.quartile([...test7, ...test8, ...test9], 0.9).toFixed(2),
+        'Mbps'
+      )
+    )
   );
 }
 
