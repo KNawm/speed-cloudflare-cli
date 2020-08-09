@@ -211,6 +211,10 @@ function logInfo(text, data) {
   console.log(bold(' '.repeat(15 - text.length), `${text}:`, blue(data)));
 }
 
+function logLatency(data) {
+  console.log(bold('         Latency:', magenta(`${data[3].toFixed(2)} ms`)));
+}
+
 function logSpeedTestResult(size, test) {
   const speed = stats.median(test).toFixed(2);
   console.log(
@@ -226,7 +230,7 @@ async function speedTest() {
   logInfo('Your IP', `${ip} (${loc})`);
 
   const ping = await measureLatency();
-  console.log(bold('         Latency:', magenta(`${ping[3].toFixed(2)} ms`)));
+  logLatency(ping);
 
   const testDown1 = await measureDownload(101000, 10);
   logSpeedTestResult('100kB', testDown1);
