@@ -220,68 +220,51 @@ function logSpeedTestResult(size, test) {
 
 async function speedTest() {
   const serverLocationData = await fetchServerLocationData();
-
   const { ip, loc, colo } = await fetchCfCdnCgiTrace();
-
   const city = serverLocationData[colo];
-
   logInfo('Server location', `${city} (${colo})`);
   logInfo('Your IP', `${ip} (${loc})`);
 
   const ping = await measureLatency();
-
   console.log(bold('         Latency:', magenta(`${ping[3].toFixed(2)} ms`)));
 
-  const test1 = await measureDownload(11000, 10);
+  const testDown1 = await measureDownload(101000, 10);
+  logSpeedTestResult('100kB', testDown1);
 
-  logSpeedTestResult('10kB', test1);
+  const testDown2 = await measureDownload(1001000, 8);
+  logSpeedTestResult('1MB', testDown2);
 
-  const test2 = await measureDownload(101000, 10);
+  const testDown3 = await measureDownload(10001000, 5);
+  logSpeedTestResult('10MB', testDown3);
 
-  logSpeedTestResult('100kB', test2);
+  const testDown4 = await measureDownload(25001000, 5);
+  logSpeedTestResult('25MB', testDown4);
 
-  const test3 = await measureDownload(1001000, 8);
+  const testDown5 = await measureDownload(100001000, 5);
+  logSpeedTestResult('100MB', testDown5);
 
-  logSpeedTestResult('1MB', test3);
-
-  const test4 = await measureDownload(10001000, 5);
-
-  logSpeedTestResult('10MB', test4);
-
-  const test5 = await measureDownload(25001000, 5);
-
-  logSpeedTestResult('25MB', test5);
-
-  const test6 = await measureDownload(100001000, 5);
-
-  logSpeedTestResult('100MB', test6);
-
+  const downloadTests = [
+    ...testDown1,
+    ...testDown2,
+    ...testDown3,
+    ...testDown4,
+    ...testDown5,
+  ];
   console.log(
     bold(
       '  Download speed:',
-      green(
-        stats
-          .quartile(
-            [...test1, ...test2, ...test3, ...test4, ...test5, ...test6],
-            0.9
-          )
-          .toFixed(2),
-        'Mbps'
-      )
+      green(stats.quartile(downloadTests, 0.9).toFixed(2), 'Mbps')
     )
   );
 
-  const test7 = await measureUpload(11000, 10);
-  const test8 = await measureUpload(101000, 10);
-  const test9 = await measureUpload(1001000, 8);
-
+  const testUp1 = await measureUpload(11000, 10);
+  const testUp2 = await measureUpload(101000, 10);
+  const testUp3 = await measureUpload(1001000, 8);
+  const uploadTests = [...testUp1, ...testUp2, ...testUp3];
   console.log(
     bold(
       '    Upload speed:',
-      green(
-        stats.quartile([...test7, ...test8, ...test9], 0.9).toFixed(2),
-        'Mbps'
-      )
+      green(stats.quartile(uploadTests, 0.9).toFixed(2), 'Mbps')
     )
   );
 }
