@@ -222,6 +222,24 @@ function logSpeedTestResult(size, test) {
   );
 }
 
+function logDownloadSpeed(tests) {
+  console.log(
+    bold(
+      '  Download speed:',
+      green(stats.quartile(tests, 0.9).toFixed(2), 'Mbps')
+    )
+  );
+}
+
+function logUploadSpeed(tests) {
+  console.log(
+    bold(
+      '    Upload speed:',
+      green(stats.quartile(tests, 0.9).toFixed(2), 'Mbps')
+    )
+  );
+}
+
 async function speedTest() {
   const serverLocationData = await fetchServerLocationData();
   const { ip, loc, colo } = await fetchCfCdnCgiTrace();
@@ -254,23 +272,13 @@ async function speedTest() {
     ...testDown4,
     ...testDown5,
   ];
-  console.log(
-    bold(
-      '  Download speed:',
-      green(stats.quartile(downloadTests, 0.9).toFixed(2), 'Mbps')
-    )
-  );
+  logDownloadSpeed(downloadTests);
 
   const testUp1 = await measureUpload(11000, 10);
   const testUp2 = await measureUpload(101000, 10);
   const testUp3 = await measureUpload(1001000, 8);
   const uploadTests = [...testUp1, ...testUp2, ...testUp3];
-  console.log(
-    bold(
-      '    Upload speed:',
-      green(stats.quartile(uploadTests, 0.9).toFixed(2), 'Mbps')
-    )
-  );
+  logUploadSpeed(uploadTests);
 }
 
 speedTest();
