@@ -2,8 +2,73 @@
 
 const { performance } = require('perf_hooks');
 const https = require('https');
-const { magenta, bold, yellow, green } = require('./chalk.js');
+const { magenta, bold, yellow, green, blue } = require('./chalk.js');
 const stats = require('./stats.js');
+
+async function get(hostname, path) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname,
+        path,
+        method: 'GET',
+      },
+      (res) => {
+        const body = [];
+        res.on('data', (chunk) => {
+          body.push(chunk);
+        });
+        res.on('end', () => {
+          try {
+            resolve(Buffer.concat(body).toString());
+          } catch (e) {
+            reject(e);
+          }
+        });
+        req.on('error', (err) => {
+          reject(err);
+        });
+      }
+    );
+
+    req.end();
+  });
+}
+
+async function fetchServerLocationData() {
+  const res = JSON.parse(await get('speed.cloudflare.com', '/locations'));
+
+  return res.reduce((data, { iata, city }) => {
+    // Bypass prettier "no-assign-param" rules
+    const data1 = data;
+
+    data1[iata] = city;
+    return data1;
+  }, {});
+}
+
+function fetchCfCdnCgiTrace() {
+  const parseCfCdnCgiTrace = (text) =>
+    text
+      .split('\n')
+      .map((i) => {
+        const j = i.split('=');
+
+        return [j[0], j[1]];
+      })
+      .reduce((data, [k, v]) => {
+        if (v === undefined) return data;
+
+        // Bypass prettier "no-assign-param" rules
+        const data1 = data;
+        // Object.fromEntries is only supported by Node.js 12 or newer
+        data1[k] = v;
+
+        return data1;
+      }, {});
+
+  return get('speed.cloudflare.com', '/cdn-cgi/trace').then(parseCfCdnCgiTrace);
+}
 
 function request(options, data = '') {
   let started;
@@ -142,17 +207,30 @@ async function measureUpload(bytes, iterations) {
   return measurements;
 }
 
+function logInfo(text, data) {
+  console.log(bold(' '.repeat(15 - text.length), `${text}:`, blue(data)));
+}
+
 function logSpeedTestResult(size, test) {
   const speed = stats.median(test).toFixed(2);
   console.log(
-    bold(' '.repeat(7 - size.length), size, 'speed:', yellow(`${speed} Mbps`))
+    bold(' '.repeat(9 - size.length), size, 'speed:', yellow(`${speed} Mbps`))
   );
 }
 
 async function speedTest() {
+  const serverLocationData = await fetchServerLocationData();
+
+  const { ip, loc, colo } = await fetchCfCdnCgiTrace();
+
+  const city = serverLocationData[colo];
+
+  logInfo('Server location', `${city} (${colo})`);
+  logInfo('Your IP', `${ip} (${loc})`);
+
   const ping = await measureLatency();
 
-  console.log(bold('       Latency:', magenta(`${ping[3].toFixed(2)} ms`)));
+  console.log(bold('         Latency:', magenta(`${ping[3].toFixed(2)} ms`)));
 
   const test1 = await measureDownload(11000, 10);
 
@@ -180,7 +258,7 @@ async function speedTest() {
 
   console.log(
     bold(
-      'Download speed:',
+      '  Download speed:',
       green(
         stats
           .quartile(
@@ -199,7 +277,7 @@ async function speedTest() {
 
   console.log(
     bold(
-      '  Upload speed:',
+      '    Upload speed:',
       green(
         stats.quartile([...test7, ...test8, ...test9], 0.9).toFixed(2),
         'Mbps'
