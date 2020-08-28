@@ -241,13 +241,16 @@ function logUploadSpeed(tests) {
 }
 
 async function speedTest() {
-  const serverLocationData = await fetchServerLocationData();
-  const { ip, loc, colo } = await fetchCfCdnCgiTrace();
+  const [ping, serverLocationData, { ip, loc, colo }] = await Promise.all([
+    measureLatency(),
+    fetchServerLocationData(),
+    fetchCfCdnCgiTrace(),
+  ]);
+
   const city = serverLocationData[colo];
   logInfo('Server location', `${city} (${colo})`);
   logInfo('Your IP', `${ip} (${loc})`);
 
-  const ping = await measureLatency();
   logLatency(ping);
 
   const testDown1 = await measureDownload(101000, 10);
