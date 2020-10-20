@@ -15,6 +15,10 @@
     </a>
 </p>
 
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/7613080/96638183-21028480-12f6-11eb-9300-05fe3792d13c.png" title="preview" />
+</p>
+
 # How to use
 ```bash
 npx speed-cloudflare-cli
