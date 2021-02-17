@@ -45,3 +45,4 @@ function jitter(values) {
 exports.average = average;
 exports.median = median;
 exports.quartile = quartile;
+exports.jitter = jitter;
