@@ -214,7 +214,7 @@ function logInfo(text, data) {
 
 function logLatency(data) {
   console.log(bold('         Latency:', magenta(`${data[3].toFixed(2)} ms`)));
-  console.log(bold('         Jitter:', magenta(`${data[4].toFixed(2)} ms`)));
+  console.log(bold('          Jitter:', magenta(`${data[4].toFixed(2)} ms`)));
 }
 
 function logSpeedTestResult(size, test) {
