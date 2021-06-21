@@ -23,3 +23,7 @@
 ```bash
 npx speed-cloudflare-cli
 ```
+or
+```bash
+docker run --rm ghcr.io/luc122c/speed-cloudflare-cli:master
+```
