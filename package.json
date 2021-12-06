@@ -2,7 +2,7 @@
   "name": "speed-cloudflare-cli",
   "version": "2.0.3",
   "description": "Measure the speed and consistency of your internet connection using speed.cloudflare.com",
-  "main": "cli.js",
+  "main": "index.js",
   "bin": {
     "speed-cloudflare-cli": "./cli.js"
   },
