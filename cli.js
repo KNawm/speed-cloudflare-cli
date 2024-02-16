@@ -78,6 +78,8 @@ function request(options, data = '') {
   let ttfb;
   let ended;
 
+  options.agent = new https.Agent(options);
+
   return new Promise((resolve, reject) => {
     started = performance.now();
     const req = https.request(options, (res) => {
