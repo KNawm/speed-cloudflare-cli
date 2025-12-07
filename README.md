@@ -23,3 +23,7 @@
 ```bash
 npx speed-cloudflare-cli
 ```
+
+```bash
+mise use npm:speed-cloudflare-cli
+```
