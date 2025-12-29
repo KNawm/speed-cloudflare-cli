@@ -54,17 +54,18 @@ async function fetchServerLocationData() {
   try {
     res = JSON.parse(responseData);
   } catch (e) {
+    console.error("Failed to parse server location data:", e);
     return {};
   }
 
   if (!Array.isArray(res)) {
+    console.warn(`Expected server location data to be an array, but got ${typeof res}.`);
     return {};
   }
 
   return res.reduce((data, { iata, city }) => {
     // Bypass prettier "no-assign-param" rules
     const data1 = data;
-
     data1[iata] = city;
     return data1;
   }, {});
