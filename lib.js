@@ -109,13 +109,13 @@ function request(options, data = "") {
     });
 
     req.on("socket", (socket) => {
-      socket.on("lookup", () => {
+      socket.once("lookup", () => {
         dnsLookup = performance.now();
       });
-      socket.on("connect", () => {
+      socket.once("connect", () => {
         tcpHandshake = performance.now();
       });
-      socket.on("secureConnect", () => {
+      socket.once("secureConnect", () => {
         sslHandshake = performance.now();
       });
     });
