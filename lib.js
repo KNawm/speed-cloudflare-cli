@@ -24,6 +24,10 @@ async function get(hostname, path) {
         hostname,
         path,
         method: "GET",
+        // Add a referrer header to avoid 403 errors
+        headers: {
+          Referer: `https://${hostname}/`,
+        },
       },
       (res) => {
         const body = [];
