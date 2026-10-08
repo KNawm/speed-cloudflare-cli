@@ -40,7 +40,7 @@ async function get(hostname, path) {
         req.on("error", (err) => {
           reject(err);
         });
-      },
+      }
     );
 
     req.end();
@@ -48,12 +48,24 @@ async function get(hostname, path) {
 }
 
 async function fetchServerLocationData() {
-  const res = JSON.parse(await get("speed.cloudflare.com", "/locations"));
+  const responseData = await get("speed.cloudflare.com", "/locations");
+  let res;
+
+  try {
+    res = JSON.parse(responseData);
+  } catch (e) {
+    console.error("Failed to parse server location data:", e);
+    return {};
+  }
+
+  if (!Array.isArray(res)) {
+    console.warn(`Expected server location data to be an array, but got ${typeof res}.`);
+    return {};
+  }
 
   return res.reduce((data, { iata, city }) => {
     // Bypass prettier "no-assign-param" rules
     const data1 = data;
-
     data1[iata] = city;
     return data1;
   }, {});
@@ -103,8 +115,7 @@ function request(options, data = "") {
       res.on("data", () => {});
       res.on("end", () => {
         ended = performance.now();
-        resolve({started, dnsLookup, tcpHandshake, sslHandshake, ttfb, ended,
-                 serverTiming: parseFloat(res.headers["server-timing"].slice(22))});
+        resolve({ started, dnsLookup, tcpHandshake, sslHandshake, ttfb, ended, serverTiming: parseFloat(res.headers["server-timing"].slice(22)) });
       });
     });
 
@@ -168,7 +179,7 @@ async function measureLatency() {
       },
       (error) => {
         console.error(`Error: ${error}`);
-      },
+      }
     );
   }
 
@@ -186,7 +197,7 @@ async function measureDownload(bytes, iterations) {
       },
       (error) => {
         console.error(`Error: ${error}`);
-      },
+      }
     );
   }
 
@@ -204,7 +215,7 @@ async function measureUpload(bytes, iterations) {
       },
       (error) => {
         console.error(`Error: ${error}`);
-      },
+      }
     );
   }
 
@@ -265,21 +276,21 @@ function parseArgs() {
 async function speedTest() {
   const args = parseArgs();
   const [ping, serverLocationData, { ip, loc, colo }] = await Promise.all([measureLatency(), fetchServerLocationData(), fetchCfCdnCgiTrace()]);
-  flushing = !args.json
+  flushing = !args.json;
 
   const city = serverLocationData[colo];
   results = {
-    server_location: `${city} (${colo})`,
+    server_location: city ? `${city} (${colo})` : colo,
     your_ip: `${ip} (${loc})`,
     latency: {
       min: ping[0].toFixed(2),
       max: ping[1].toFixed(2),
       average: ping[2].toFixed(2),
       median: ping[3].toFixed(2),
-      jitter: ping[4].toFixed(2)
+      jitter: ping[4].toFixed(2),
     },
     download_speeds: [],
-    upload_speeds: []
+    upload_speeds: [],
   };
   logInfo("Server Location", results.server_location);
   logInfo("Your IP", results.your_ip);
@@ -307,7 +318,7 @@ async function speedTest() {
   const testUp2 = await measureUpload(101000, 10);
   const testUp3 = await measureUpload(1001000, 8);
   const uploadTests = [...testUp1, ...testUp2, ...testUp3];
-  logUploadSpeed(uploadTests)
+  logUploadSpeed(uploadTests);
 
   // Conditional output based on --json option
   if (args.json) {
@@ -332,5 +343,5 @@ module.exports = {
   logDownloadSpeed,
   logUploadSpeed,
   parseArgs,
-  speedTest
+  speedTest,
 };
